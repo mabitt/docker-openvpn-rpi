@@ -1,0 +1,101 @@
+#!/bin/bash
+# -----------------------------------------------------------------------------
+# docker /start script
+# -----------------------------------------------------------------------------
+
+if [ ! -d /dev/net ]; then
+  mkdir -p /dev/net
+fi
+
+if [ ! -c /dev/net/tun ];then
+  mknod /dev/net/tun c 10 200
+fi
+
+# Checking if config dir exists
+if [ ! -d /etc/openvpn ] && [ -d /data/conf ]; then
+  ln -s /data/conf /etc/openvpn
+elif [ -d /etc/openvpn ] && [ ! -d /data/conf ]; then
+  mkdir -p /data/conf
+  cp -dprfa /etc/openvpn/* /data/conf
+  rm -rf /etc/openvpn
+  ln -s /data/conf /etc/openvpn
+elif [ -d /etc/openvpn ] && [ -d /data/conf ]; then
+  rm -rf /etc/openvpn
+  ln -s /data/conf /etc/openvpn
+fi
+
+# Generate keys if it doesn't exists
+if [ ! -f /etc/openvpn/dh.pem ]; then
+  openssl dhparam -out /etc/openvpn/dh.pem 512
+fi
+
+if [ ! -f /etc/openvpn/key.pem ]; then
+  openssl genrsa -out /etc/openvpn/key.pem 2048
+  chmod 600 /etc/openvpn/key.pem
+fi
+
+if [ ! -f /etc/openvpn/csr.pem ]; then
+  openssl req -new -key /etc/openvpn/key.pem -out /etc/openvpn/csr.pem -subj /CN=OpenVPN/
+fi
+
+if [ ! -f /etc/openvpn/cert.pem ]; then
+  openssl x509 -req -in /etc/openvpn/csr.pem -out /etc/openvpn/cert.pem -signkey /etc/openvpn/key.pem -days 24855
+fi
+
+# Generate config if it doesnt exists
+if [ ! -f /etc/openvpn/udp1194.conf ]; then cat >/etc/openvpn/udp1194.conf <<EOF
+server 192.168.255.128 255.255.255.128
+verb 3
+duplicate-cn
+key key.pem
+ca cert.pem
+cert cert.pem
+dh dh.pem
+keepalive 10 60
+persist-key
+persist-tun
+push "dhcp-option DNS 8.8.8.8"
+push "dhcp-option DNS 8.8.4.4"
+push "redirect-gateway bypass-dhcp"
+push "route-metric 512"
+push "route 0.0.0.0 0.0.0.0"
+proto udp
+port 1194
+dev tun1194
+status openvpn-status-1194.log
+EOF
+fi
+
+MY_IP_ADDR=$(curl -s http://myip.enix.org/REMOTE_ADDR)
+[ "$MY_IP_ADDR" ] || {
+  echo "Sorry, I could not figure out my public IP address."
+  exit 1
+}
+
+if [ ! -f /etc/openvpn/client.ovpn ]; then cat >/etc/openvpn/client.ovpn <<EOF
+client
+nobind
+dev tun
+redirect-gateway def1 bypass-dhcp
+<key>
+`cat /etc/openvpn/key.pem`
+</key>
+<cert>
+`cat /etc/openvpn/cert.pem`
+</cert>
+<ca>
+`cat /etc/openvpn/cert.pem`
+</ca>
+<connection>
+remote $MY_IP_ADDR 1194 udp
+</connection>
+EOF
+fi
+
+# Start NAT forwarding
+echo 1 > /proc/sys/net/ipv4/ip_forward
+iptables -t nat -A POSTROUTING -s 192.168.255.0/24 -o eth0 -j MASQUERADE
+
+# Start
+cd /etc/openvpn/
+exec /usr/sbin/openvpn --config udp1194.conf
