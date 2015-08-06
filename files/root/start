@@ -66,7 +66,7 @@ status openvpn-status-1194.log
 EOF
 fi
 
-if [ ! -f /etc/openvpn/udp1194.conf ]; then cat >/etc/openvpn/udp1194.conf <<EOF
+if [ ! -f /etc/openvpn/tcp443.conf ]; then cat >/etc/openvpn/tcp443.conf <<EOF
 server 192.168.255.128 255.255.255.128
 verb 3
 duplicate-cn
@@ -124,5 +124,5 @@ iptables -t nat -A POSTROUTING -s 192.168.255.0/24 -o eth0 -j MASQUERADE
 
 # Start
 cd /etc/openvpn/
-exec /usr/sbin/openvpn --config udp1194.conf
 exec /usr/sbin/openvpn --config tcp443.conf
+exec /usr/sbin/openvpn --config udp1194.conf
