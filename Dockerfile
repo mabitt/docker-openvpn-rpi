@@ -13,7 +13,7 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu/ vivid main restricted universe m
   && DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -qy
 
 # Install software
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -qy --no-install-recommends ca-certificates curl openvpn openssl iptables \
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -qy --no-install-recommends supervisor ca-certificates curl openvpn openssl iptables \
   && apt-get clean \
   && rm -rf /var/lib/apt /tmp/* /var/tmp/*
 

@@ -122,7 +122,5 @@ fi
 echo 1 > /proc/sys/net/ipv4/ip_forward
 iptables -t nat -A POSTROUTING -s 192.168.255.0/24 -o eth0 -j MASQUERADE
 
-# Start
-cd /etc/openvpn/
-exec /usr/sbin/openvpn --config tcp443.conf
-exec /usr/sbin/openvpn --config udp1194.conf
+# Run supervisor that in turn run the servers
+/usr/bin/supervisord -n
