@@ -4,6 +4,8 @@ MAINTAINER Edgard Castro <castro@edgard.org>
 # Keep image updated
 ENV REFRESHED_AT 2015-07-28-05-16Z
 
+ENV LANG C.UTF-8
+
 # Add repositories and update base
 RUN echo "deb http://archive.ubuntu.com/ubuntu/ vivid main restricted universe multiverse" > /etc/apt/sources.list \
   && echo "deb http://archive.ubuntu.com/ubuntu/ vivid-updates main restricted universe multiverse" >> /etc/apt/sources.list \
