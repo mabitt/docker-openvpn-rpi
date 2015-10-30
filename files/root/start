@@ -26,7 +26,7 @@ fi
 
 # Generate keys if it doesn't exists
 if [ ! -f /etc/openvpn/dh.pem ]; then
-  openssl dhparam -out /etc/openvpn/dh.pem 1024
+  openssl dhparam -out /etc/openvpn/dh.pem 2048
 fi
 
 if [ ! -f /etc/openvpn/key.pem ]; then
@@ -44,7 +44,7 @@ fi
 
 # Generate config if it doesnt exists
 if [ ! -f /etc/openvpn/udp1194.conf ]; then cat >/etc/openvpn/udp1194.conf <<EOF
-server 192.168.255.128 255.255.255.128
+server 192.168.255.0 255.255.255.128
 verb 3
 duplicate-cn
 key key.pem
