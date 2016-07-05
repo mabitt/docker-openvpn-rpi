@@ -46,6 +46,7 @@ fi
 if [ ! -f /etc/openvpn/udp1194.conf ]; then cat >/etc/openvpn/udp1194.conf <<EOF
 server 192.168.255.0 255.255.255.128
 verb 3
+cipher AES-128-CBC
 duplicate-cn
 key key.pem
 ca cert.pem
@@ -69,6 +70,7 @@ fi
 if [ ! -f /etc/openvpn/tcp443.conf ]; then cat >/etc/openvpn/tcp443.conf <<EOF
 server 192.168.255.128 255.255.255.128
 verb 3
+cipher AES-128-CBC
 duplicate-cn
 key key.pem
 ca cert.pem
@@ -97,6 +99,7 @@ MY_IP_ADDR=$(curl -s http://myip.enix.org/REMOTE_ADDR)
 
 if [ ! -f /etc/openvpn/client.ovpn ]; then cat >/etc/openvpn/client.ovpn <<EOF
 client
+cipher AES-128-CBC
 nobind
 dev tun
 redirect-gateway def1 bypass-dhcp
