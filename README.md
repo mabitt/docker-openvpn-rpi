@@ -4,8 +4,8 @@ This container runs OpenVPN.
 
 Running manually
 ----------------
-    docker build -t mabitt/openvpn .
-    docker run -d --name openvpn --privileged -p 443:443 -p 1194:1194/udp -v /srv/openvpn:/data mabitt/openvpn
+    docker build -t mabitt/openvpn-rpi .
+    docker run -d --name openvpn --privileged -p 443:443 -p 1194:1194/udp -v /srv/openvpn:/data mabitt/openvpn-rpi
 
 Running with systemd
 -----------------------
@@ -22,7 +22,7 @@ ExecStartPre=-/usr/bin/docker pull mabitt/openvpn
 ExecStartPre=-/usr/bin/docker stop openvpn
 ExecStartPre=-/usr/bin/docker kill openvpn
 ExecStartPre=-/usr/bin/docker rm openvpn
-ExecStart=/usr/bin/sudo docker run --name openvpn --privileged -p 443:443 -p 1194:1194/udp -v /srv/openvpn:/data mabitt/openvpn
+ExecStart=/usr/bin/sudo docker run --name openvpn --privileged -p 443:443 -p 1194:1194/udp -v /srv/openvpn:/data mabitt/openvpn-rpi
 ExecStop=/usr/bin/docker stop openvpn
 Restart=always
 RestartSec=10s
